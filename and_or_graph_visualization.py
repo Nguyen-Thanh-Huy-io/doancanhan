@@ -3,13 +3,11 @@ from tkinter import ttk, scrolledtext
 from copy import deepcopy
 
 class AndOrVisualizerWindow:
-    def __init__(self, master_gui): # master_gui là instance của PuzzleGUI
+    def __init__(self, master_gui): 
         self.master_gui = master_gui
         self.algo = master_gui.algo 
-        self.initial_state_config = master_gui.initial_state_config # Truy cập từ master_gui
-        self.goal_state_list = master_gui.goal_state_list     # Truy cập từ master_gui
-
-        # Sao chép các hằng số cần thiết hoặc truy cập qua master_gui
+        self.initial_state_config = master_gui.initial_state_config 
+        self.goal_state_list = master_gui.goal_state_list     
         self.FONT_LABEL = master_gui.FONT_LABEL
         self.FONT_PATH = master_gui.FONT_PATH
         self.TILE_SIZE = master_gui.TILE_SIZE
@@ -24,26 +22,22 @@ class AndOrVisualizerWindow:
         self.COLOR_TEXT = master_gui.COLOR_TEXT
 
 
-        self.window = tk.Toplevel(master_gui.master) # Parent là root Tk của master_gui
+        self.window = tk.Toplevel(master_gui.master)         
         self.window.title("And-Or Search Visualizer")
-        self.window.geometry("1150x850") # Có thể điều chỉnh kích thước
+        self.window.geometry("1150x850")          
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
         self.generator = None
         self.auto_running = False
-        self.delay_var = tk.IntVar(value=1000) # ms
+        self.delay_var = tk.IntVar(value=1000)          
         self.current_path_display_var = tk.StringVar(value="Path: []")
-        self.current_and_state_data = None # Sẽ lưu trạng thái AND hiện tại dạng list of lists
-        self.and_state_labels = None # [[tk.Label, ...], ...] cho lưới AND
-        self.or_state_gui_elements = [] # List of dicts cho các ô hiển thị OR
-        self.log_text_widget = None # Sẽ là widget ScrolledText
-
-        self._setup_ui() # Gọi hàm tạo giao diện
-        self._clear_displays() # Đặt lại hiển thị ban đầu
-
+        self.current_and_state_data = None          
+        self.and_state_labels = None          
+        self.or_state_gui_elements = []          
+        self.log_text_widget = None  
+        self._setup_ui()          
+        self._clear_displays()  
     def _create_grid_labels(self, parent_frame, tile_size, tile_font, is_or_viz=False):
-        # Sử dụng lại logic này từ master_gui hoặc định nghĩa lại một cách độc lập hơn
-        # Hiện tại, nó lấy các hằng số màu từ self, mà self đã copy từ master_gui
         labels = [[None for _ in range(3)] for _ in range(3)]
         effective_tile_size = self.OR_VIZ_TILE_SIZE if is_or_viz else tile_size
         
@@ -56,13 +50,12 @@ class AndOrVisualizerWindow:
                 label = tk.Label(parent_frame, text="", font=tile_font,
                                  width=label_width, height=label_height, 
                                  borderwidth=border_w, relief=tk.RAISED,
-                                 bg=self.COLOR_TILE, fg=self.COLOR_TEXT) # Sử dụng self.COLOR_TILE etc.
+                                 bg=self.COLOR_TILE, fg=self.COLOR_TEXT)                  
                 label.grid(row=r_idx, column=c_idx, padx=1, pady=1)
                 labels[r_idx][c_idx] = label
         return labels
 
     def _update_grid(self, grid_labels, state_data):
-        # Sử dụng lại logic này từ master_gui hoặc định nghĩa lại
         if not state_data or len(state_data) != 3: return
         for r_idx in range(3):
              if len(state_data[r_idx]) != 3: continue
@@ -100,19 +93,14 @@ class AndOrVisualizerWindow:
         display_pane = ttk.PanedWindow(main_viz_frame, orient="horizontal"); display_pane.pack(fill="both", expand=True, pady=5)
         
         and_state_frame_outer = tk.LabelFrame(display_pane, text="Current AND State", padx=10, pady=10, font=self.FONT_LABEL, bg=self.COLOR_FRAME_BG)
-        display_pane.add(and_state_frame_outer, weight=1) # Thêm and_state_frame_outer vào display_pane
-        
+        display_pane.add(and_state_frame_outer, weight=1)          
         ttk.Label(and_state_frame_outer, textvariable=self.current_path_display_var, font=self.FONT_LABEL, background=self.COLOR_FRAME_BG).pack(side="top", pady=2)
         and_state_grid_frame = tk.Frame(and_state_frame_outer, bg=self.COLOR_FRAME_BG); and_state_grid_frame.pack(pady=10, anchor="center")
         self.and_state_labels = self._create_grid_labels(and_state_grid_frame, self.TILE_SIZE, self.FONT_TILE)
-
-        # Sửa lỗi TclError: or_log_pane là parent, không phải là child của chính nó
         or_log_pane = ttk.PanedWindow(display_pane, orient="vertical") 
-        display_pane.add(or_log_pane, weight=2) # Thêm or_log_pane vào display_pane
-        
+        display_pane.add(or_log_pane, weight=2)          
         or_states_frame_outer = tk.LabelFrame(or_log_pane, text="Possible OR Choices (Blank Moves: UP, DOWN, LEFT, RIGHT)", padx=10, pady=10, font=self.FONT_LABEL, bg=self.COLOR_FRAME_BG)
-        or_log_pane.add(or_states_frame_outer, weight=2) # Thêm or_states_frame_outer vào or_log_pane
-        
+        or_log_pane.add(or_states_frame_outer, weight=2)          
         or_states_container = tk.Frame(or_states_frame_outer, bg=self.COLOR_FRAME_BG)
         or_states_container.pack(fill="both", expand=True, pady=5)
 
@@ -121,7 +109,7 @@ class AndOrVisualizerWindow:
         or_row2_frame = tk.Frame(or_states_container, bg=self.COLOR_FRAME_BG)
         or_row2_frame.pack(side="top", fill="x", pady=2, anchor="center")
         
-        self.or_state_gui_elements = [] # Đảm bảo được khởi tạo lại
+        self.or_state_gui_elements = []          
         or_parents = [or_row1_frame, or_row1_frame, or_row2_frame, or_row2_frame]
         
         for i in range(4): 
@@ -142,9 +130,7 @@ class AndOrVisualizerWindow:
             })
 
         log_frame_outer = tk.LabelFrame(or_log_pane, text="Search Log", padx=10, pady=10, font=self.FONT_LABEL, bg=self.COLOR_FRAME_BG)
-        or_log_pane.add(log_frame_outer, weight=1) # Thêm log_frame_outer vào or_log_pane
-        
-        # Khởi tạo self.log_text_widget ở đây
+        or_log_pane.add(log_frame_outer, weight=1)          
         self.log_text_widget = scrolledtext.ScrolledText(log_frame_outer, height=10, width=70, font=self.FONT_PATH, wrap=tk.WORD, bg="#FEFEFE", fg="#101010")
         self.log_text_widget.pack(fill="both", expand=True)
         self.log_text_widget.insert(tk.END, "Click 'Start/Restart' to visualize And-Or search on current main puzzle.\n"); 
@@ -152,7 +138,6 @@ class AndOrVisualizerWindow:
 
 
     def _log(self, message):
-        # Kiểm tra self.log_text_widget trước khi sử dụng
         if hasattr(self, 'log_text_widget') and self.log_text_widget and self.log_text_widget.winfo_exists():
             self.log_text_widget.config(state=tk.NORMAL)
             self.log_text_widget.insert(tk.END, str(message) + "\n")
@@ -163,10 +148,7 @@ class AndOrVisualizerWindow:
 
 
     def _clear_displays(self):
-        if self.and_state_labels: # Đảm bảo đã được khởi tạo
-            self._update_grid(self.and_state_labels, [[0,0,0],[0,0,0],[0,0,0]])
-        
-        # or_state_gui_elements được khởi tạo là list rỗng, sau đó được điền trong _setup_ui
+        if self.and_state_labels:              self._update_grid(self.and_state_labels, [[0,0,0],[0,0,0],[0,0,0]])
         if hasattr(self, 'or_state_gui_elements'):
             for or_info in self.or_state_gui_elements:
                 if or_info['frame'].winfo_exists(): 
@@ -174,19 +156,15 @@ class AndOrVisualizerWindow:
                     if or_info['grid_labels']: self._update_grid(or_info['grid_labels'], [[0,0,0],[0,0,0],[0,0,0]])
                     if or_info['status_var']: or_info['status_var'].set("")
         
-        if hasattr(self, 'current_path_display_var') and self.current_path_display_var: # Đảm bảo đã được khởi tạo
-            self.current_path_display_var.set("Path: []")
+        if hasattr(self, 'current_path_display_var') and self.current_path_display_var:              self.current_path_display_var.set("Path: []")
         self.current_and_state_data = None
 
 
     def _start_visualization(self):
-        # Kiểm tra self.log_text_widget trước khi sử dụng
         if hasattr(self, 'log_text_widget') and self.log_text_widget and self.log_text_widget.winfo_exists():
             self.log_text_widget.config(state=tk.NORMAL); self.log_text_widget.delete('1.0', tk.END); self.log_text_widget.config(state=tk.DISABLED)
-        self._log("Starting/Restarting And-Or Search Visualization...") # Sẽ được log nếu widget tồn tại
-        
-        self._clear_displays() # Gọi sau khi log_text_widget có thể đã được xóa nội dung
-
+        self._log("Starting/Restarting And-Or Search Visualization...")          
+        self._clear_displays()  
         initial_s = deepcopy(self.master_gui.initial_state_config) 
         goal_s = deepcopy(self.master_gui.goal_state_list)
         if not self.algo.is_solvable(initial_s):
@@ -225,8 +203,7 @@ class AndOrVisualizerWindow:
 
         for or_info_gui in self.or_state_gui_elements: 
             if or_info_gui['frame'].winfo_exists(): 
-                or_info_gui['frame'].config(relief=tk.SOLID, borderwidth=1, bg=self.COLOR_FRAME_BG) # Reset về tk.Frame bg
-
+                or_info_gui['frame'].config(relief=tk.SOLID, borderwidth=1, bg=self.COLOR_FRAME_BG)  
 
         if viz_type == 'AND_STATE':
             current_s, path_c = data, rest[0]
@@ -268,7 +245,6 @@ class AndOrVisualizerWindow:
                 else:
                     empty_display_state = [[" ", " ", " "], ["-", "X", "-"], [" ", " ", " "]]
                     self._update_grid(or_gui['grid_labels'], empty_display_state)
-                    # Thêm cấu hình màu nền cho ô invalid trực tiếp trên các label con
                     for r_idx_inv in range(3): 
                         for c_idx_inv in range(3):
                             if or_gui['grid_labels'][r_idx_inv][c_idx_inv].winfo_exists():
@@ -294,8 +270,7 @@ class AndOrVisualizerWindow:
                             chosen_slot_idx = i_slot; break
                     if chosen_slot_idx != -1 and chosen_slot_idx < len(self.or_state_gui_elements):
                         if self.or_state_gui_elements[chosen_slot_idx]['frame'].winfo_exists():
-                            # Highlight bằng cách thay đổi bg của frame tk.Frame
-                            self.or_state_gui_elements[chosen_slot_idx]['frame'].config(bg=self.COLOR_OR_VIZ_HIGHLIGHT, relief=tk.RAISED, borderwidth=2)
+                             self.or_state_gui_elements[chosen_slot_idx]['frame'].config(bg=self.COLOR_OR_VIZ_HIGHLIGHT, relief=tk.RAISED, borderwidth=2)
 
 
         elif viz_type == 'BACKTRACK_FROM_OR': self._log(f"BACKTRACK from OR (Move by tile at: {data['move']}) failed.")
@@ -329,8 +304,8 @@ class AndOrVisualizerWindow:
 
     def _on_close(self):
         self.auto_running = False; self.generator = None
-        self.master_gui.on_and_or_viz_window_closed() # Thông báo cho cửa sổ chính
-        if hasattr(self, 'window') and self.window: # self.window là Toplevel
+        self.master_gui.on_and_or_viz_window_closed()          
+        if hasattr(self, 'window') and self.window:              
             try: self.window.destroy()
             except tk.TclError: pass
-        # Không cần gán self.window = None vì instance AndOrVisualizerWindow sẽ bị xóa bởi master_gui
+ 

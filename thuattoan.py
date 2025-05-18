@@ -759,12 +759,12 @@ def is_valid_board_values_csp(board_list_of_lists):
                     return False 
                 seen.add(val)
             count += 1
-    return count == 9 and len(seen) == 8 # (Constants from Pygame code, can be defined here or passed if needed)
+    return count == 9 and len(seen) == 8   
 CSP_BACKTRACKING_MAX_DEPTH = 35
 CSP_FORWARD_CHECKING_MAX_DEPTH = 35
 CSP_MIN_CONFLICTS_MAX_ITERATIONS = 200
 
-def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING_MAX_DEPTH):     # path stores lists of lists
+def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING_MAX_DEPTH):       
     
     memoized_3_6_check = {}
     def _is_3_6_adjacent_memoized(state_tuple):

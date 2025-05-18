@@ -1,26 +1,23 @@
-# belief_system_window.py
 import tkinter as tk
 from tkinter import ttk, scrolledtext,messagebox
 from copy import deepcopy
-import random # Cần cho việc tạo state
-import threading # Cần cho việc chạy solver trong thread
-import time # Cần cho việc đo thời gian và sleep
-
-
-# import thuattoan as algo # Sẽ được truy cập qua self.master_gui.algo
+import random   
+import threading   
+import time   
+  
 
 class NiemTin:
     def __init__(self, master_gui, belief_type):
         self.master_gui = master_gui
-        self.belief_type = belief_type # "Belief" or "PartialBelief"
+        self.belief_type = belief_type   
         self.algo = master_gui.algo
         
-        # Constants from master_gui
+          
         self.FONT_LABEL = master_gui.FONT_LABEL
         self.COLOR_FRAME_BG = master_gui.COLOR_FRAME_BG
         self.BELIEF_TILE_SIZE = master_gui.BELIEF_TILE_SIZE
         self.FONT_BELIEF_TILE = master_gui.FONT_BELIEF_TILE
-        # ... (Thêm các hằng số khác nếu cần)
+          
 
         self.window = tk.Toplevel(master_gui.master)
         window_title = "Belief State Puzzle Solver" if belief_type == "Belief" else "Partial Belief State Solver"
@@ -28,15 +25,15 @@ class NiemTin:
         self.window.geometry("1150x750")
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        self.belief_states = [] # Các trạng thái ban đầu được tạo
-        self.goal_states = []   # Các trạng thái đích tương ứng (thường là cố định)
-        self.display_grids_info = [] # Thông tin về các grid hiển thị puzzle
-        self.solve_thread = None # Thread để chạy giải thuật
+        self.belief_states = []   
+        self.goal_states = []     
+        self.display_grids_info = []   
+        self.solve_thread = None   
 
         self._setup_ui()
 
     def _create_grid_labels(self, parent_frame, tile_size, tile_font, is_or_viz=False):
-        # Sao chép từ PuzzleGUI hoặc làm cho nó có thể tái sử dụng
+          
         labels = [[None for _ in range(3)] for _ in range(3)]
         effective_tile_size = tile_size 
         label_width = max(3, int(effective_tile_size / 18))
@@ -53,7 +50,7 @@ class NiemTin:
         return labels
 
     def _update_grid(self, grid_labels, state_data):
-        # Sao chép từ PuzzleGUI hoặc làm cho nó có thể tái sử dụng
+          
         if not state_data or len(state_data) != 3: return
         for r_idx in range(3):
              if len(state_data[r_idx]) != 3: continue
@@ -73,14 +70,14 @@ class NiemTin:
         display_pane = ttk.PanedWindow(main_frame, orient="horizontal"); display_pane.pack(fill="both", expand=True, pady=10)
 
         ttk.Label(control_frame, text="Algorithm:").pack(side="left", padx=5)
-        self.algo_var = tk.StringVar(value="BFS") # Biến cho combobox
+        self.algo_var = tk.StringVar(value="BFS")   
         excluded = ["Niềm Tin", "Niềm Tin 1 Phần", "And-Or Visualizer"] 
         algos = [a for a in self.master_gui.get_available_algorithms() if a not in excluded]
         self.algo_combo = ttk.Combobox(control_frame, textvariable=self.algo_var, values=algos, state="readonly", width=15)
         self.algo_combo.pack(side="left", padx=5)
 
         ttk.Label(control_frame, text="Num States:").pack(side="left", padx=(10, 2))
-        self.num_states_var = tk.StringVar(value="10") # Biến cho số lượng states
+        self.num_states_var = tk.StringVar(value="10")   
         ttk.Entry(control_frame, textvariable=self.num_states_var, width=5).pack(side="left", padx=2)
 
         canvas_frame = ttk.Frame(display_pane, width=600); display_pane.add(canvas_frame, weight=2)
@@ -88,7 +85,7 @@ class NiemTin:
         vbar = ttk.Scrollbar(canvas_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=vbar.set); vbar.pack(side="right", fill="y"); self.canvas.pack(side="left", fill="both", expand=True)
         
-        # self.inner_frame là frame bên trong canvas để vẽ các puzzle lên
+          
         self.inner_frame = ttk.Frame(self.canvas) 
         self.canvas.create_window((4,4), window=self.inner_frame, anchor="nw")
         self.inner_frame.bind("<Configure>", lambda e, c=self.canvas: c.configure(scrollregion=c.bbox("all")))
@@ -107,7 +104,7 @@ class NiemTin:
         self.reset_button = ttk.Button(control_frame, text="Reset Display", command=self._reset_display)
         self.reset_button.pack(side="left", padx=5)
 
-        self._reset_display_content() # Khởi tạo hiển thị
+        self._reset_display_content()   
 
     def _generate_own_belief_states(self, num_states):
          self.belief_states = []; self.goal_states = []
@@ -145,9 +142,9 @@ class NiemTin:
         except ValueError as e:
             messagebox.showerror("Invalid Number", str(e), parent=self.window); return
         
-        self._stop_simulation() # Dừng simulation cũ nếu có
+        self._stop_simulation()   
 
-        if self.log_text_widget.winfo_exists(): # Xóa log cũ
+        if self.log_text_widget.winfo_exists():   
             self.log_text_widget.config(state=tk.NORMAL); self.log_text_widget.delete('1.0', tk.END)
             self.log_text_widget.insert(tk.END, f"Generating {num_to_gen} states for {self.belief_type}...\n")
             self.log_text_widget.see(tk.END); self.log_text_widget.config(state=tk.DISABLED)
@@ -166,7 +163,7 @@ class NiemTin:
         try:
             if not self.inner_frame.winfo_exists(): return
             for widget in self.inner_frame.winfo_children(): widget.destroy()
-        except tk.TclError: return # Frame có thể đã bị hủy
+        except tk.TclError: return   
         self.display_grids_info = [] 
         if not self.belief_states or not self.goal_states:
              try: ttk.Label(self.inner_frame, text="Gen states.").pack()
@@ -229,18 +226,18 @@ class NiemTin:
     def _run_solver_thread_logic(self, solver, b_list, g_list, algo_n):
         tid = threading.current_thread(); num_b = len(b_list); solved_c=0; total_d=0.0
         for i in range(num_b):
-            active_t = self.solve_thread # Check against self.solve_thread
+            active_t = self.solve_thread   
             if active_t != tid: print(f"Belief thread {tid} ({self.belief_type}) interrupted."); return
             bs = b_list[i]; gs = g_list[i]; start_t=time.time(); sol_path=None; err_detail=None
             try: sol_path = solver(deepcopy(bs), deepcopy(gs))
             except Exception as e: err_detail = f"Error: {e}"
             dur = time.time() - start_t; total_d += dur
             res_send = err_detail if err_detail else sol_path
-            if self.solve_thread == tid: # Check again before master.after
+            if self.solve_thread == tid:   
                 self.master_gui.master.after(0, lambda idx=i+1, r=res_send, d=dur: self._update_log(idx,r,d))
             if isinstance(sol_path, list): solved_c+=1
             if num_b > 1: time.sleep(0.01) 
-        if self.solve_thread == tid: # Final check
+        if self.solve_thread == tid:   
             self.master_gui.master.after(0, lambda nb=num_b,ts=solved_c,td=total_d: self._finalize_log(nb,ts,td))
             self.master_gui.master.after(10, self._reset_thread_var_and_buttons, tid)
 
@@ -292,7 +289,7 @@ class NiemTin:
                 if hasattr(self, 'reset_button') and self.reset_button.winfo_exists(): self.reset_button.config(state=tk.NORMAL)
             except tk.TclError: pass
 
-    def _reset_display_content(self): # Renamed from _reset_display
+    def _reset_display_content(self):   
         if self.inner_frame and self.inner_frame.winfo_exists():
             for widget in self.inner_frame.winfo_children(): widget.destroy()
         if self.log_text_widget and self.log_text_widget.winfo_exists():
@@ -304,10 +301,10 @@ class NiemTin:
             self.canvas.update_idletasks(); self.canvas.configure(scrollregion=(0,0,1,1))
         print(f"{self.belief_type} display content reset.")
     
-    def _reset_display(self): # This is called by the button
+    def _reset_display(self):   
         self._stop_simulation()
         self._reset_display_content()
-        # Re-enable buttons
+          
         try: 
             if hasattr(self, 'run_button') and self.run_button.winfo_exists(): self.run_button.config(state=tk.NORMAL)
             if hasattr(self, 'reset_button') and self.reset_button.winfo_exists(): self.reset_button.config(state=tk.NORMAL)
@@ -318,8 +315,8 @@ class NiemTin:
     def _on_close(self):
         print(f"{self.belief_type} window closed by user.")
         self._stop_simulation()
-        if self.window: # Check if self.window exists
+        if self.window:   
             try: self.window.destroy()
             except tk.TclError: pass
-        # Inform master_gui to update its state
+          
         self.master_gui.on_belief_type_window_closed(self.belief_type)
