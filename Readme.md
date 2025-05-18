@@ -13,3 +13,4 @@ Một bài toán tìm kiếm thông thường sẽ đƯợc định nghĩa bởi
 2.1.1. Breadth-First Search (BFS)  - tìm kiếm theo chiều rộng
 - Mô tả: Thuật toán duyệt hoặc mở rộng từ những nút nông trước (những nút kế bên nút được xét), sử dụng hàng đợi queue để xử lý các nút chờ được xét.
 - Ứng dụng: Trực quan hóa quá trình BFS giải 8-puzzle có thể được thực hiện thông qua giao diện chính (`giaodien.py`).
+![Demo](assets/images/bfs.gif)
