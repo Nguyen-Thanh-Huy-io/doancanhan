@@ -1,4 +1,3 @@
-# giaodien.py
 import tkinter as tk
 from tkinter import ttk, font, messagebox, scrolledtext
 import threading
@@ -15,12 +14,12 @@ except AttributeError as e:
      messagebox.showerror("Attribute Error", f"Error importing from 'thuattoan.py'.\nMissing attribute: {e}\n\nPlease ensure 'thuattoan.py' is complete and updated.")
      exit()
 
-# Import các class cửa sổ mới
+ 
 try:
     from and_or_graph_visualization import AndOrVisualizerWindow
     from niemtin_visual import NiemTin
-    # from kiemthu_giaodien import AlgorithmTestWindow # Đã xóa
-    from csp_visualizer import CSPVisualizerWindow # <<< THÊM IMPORT MỚI
+ 
+    from csp_visualizer import CSPVisualizerWindow 
 except ImportError as e:
     missing_files = []
     if 'AndOrVisualizerWindow' not in globals(): missing_files.append("and_or_graph_visualization.py")
@@ -36,10 +35,10 @@ class PuzzleGUI:
     def __init__(self, master):
         self.master = master
         master.title("8-Puzzle Solver")
-        master.geometry("1200x700") # Điều chỉnh nếu cần không gian cho nhiều thuật toán hơn
+        master.geometry("1200x700") 
         master.configure(bg="#E0E0E0")
 
-        # --- Constants ---
+ 
         self.TILE_SIZE = 80
         self.BELIEF_TILE_SIZE = 40
         self.OR_VIZ_TILE_SIZE = 50
@@ -67,20 +66,20 @@ class PuzzleGUI:
         self.COLOR_OR_VIZ_HIGHLIGHT = "#AEEEEE"
         self.COLOR_OR_VIZ_INVALID = "#D0D0D0"
 
-        # --- State Variables ---
+ 
         self.default_initial_state = [[1, 2, 3], [4, 0, 6], [7, 5, 8]]
         self.initial_state_config = deepcopy(self.default_initial_state)
         self.goal_state_list = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
         self.current_display_state = deepcopy(self.initial_state_config)
 
-        # --- Tkinter Variables ---
+ 
         self.selected_algorithm = tk.StringVar(value="BFS")
         self.selected_speed = tk.DoubleVar(value=0.4)
         self.status_text = tk.StringVar(value="Set initial state or use default. Then select algorithm and run.")
         self.result_status_text = tk.StringVar(value="Status: Idle")
         self.result_time_text = tk.StringVar(value="Time: -")
 
-        # --- Main GUI Widgets (references) ---
+ 
         self.initial_entries = [[None for _ in range(3)] for _ in range(3)]
         self.initial_labels = [[None for _ in range(3)] for _ in range(3)]
         self.goal_labels = [[None for _ in range(3)] for _ in range(3)]
@@ -91,19 +90,19 @@ class PuzzleGUI:
         self.result_status_label = None
         self.result_time_label = None
 
-        # --- Animation State ---
+ 
         self.solution_path = None
         self.solution_step = 0
         self.animation_delay_ms = 400
         self.is_animating = False
         self.solve_thread = None
 
-        # Tham chiếu đến các cửa sổ con (nếu đang mở)
+ 
         self.belief_window_instance = None
         self.partial_belief_window_instance = None
         self.and_or_viz_instance = None
-        # self.algorithm_test_instance = None # Đã xóa
-        self.csp_visualizer_instance = None # <<< THÊM THAM CHIẾU MỚI
+ 
+        self.csp_visualizer_instance = None 
 
         self.algo = algo
 
@@ -290,7 +289,7 @@ class PuzzleGUI:
 
         algorithms = self.get_available_algorithms()
 
-        num_algo_cols = 3 # Có thể tăng nếu danh sách quá dài
+        num_algo_cols = 3 
         current_row = 0
         current_col = 0
         for algo_name_display in algorithms:
@@ -427,7 +426,7 @@ class PuzzleGUI:
             self.result_status_text.set(f"Status: {algo_name_display}"); self.update_result_label_color("info")
             return
 
-        # Standard algorithm solving (non-windowed)
+ 
         self.current_display_state = deepcopy(self.initial_state_config)
         self.update_grid(self.initial_labels, self.current_display_state)
         self.solution_path = None; self.solution_step = 0; self.clear_solution_display()
@@ -440,7 +439,7 @@ class PuzzleGUI:
         except tk.TclError: pass
 
         algo_key = algo_name_display.lower().replace("*", "_star").replace(" ", "_").replace("-","_")
-        # Remap specific keys if needed (already done for HC variants, Greedy)
+ 
         if algo_key == "bfs": algo_key = "bfs"
         elif algo_key == "dfs": algo_key = "dfs"
         elif algo_key == "ucs": algo_key = "ucs"
@@ -455,7 +454,7 @@ class PuzzleGUI:
         elif algo_key == "steepest_hc": algo_key = "steepest_hill_climbing"
         elif algo_key == "stochastic_hc": algo_key = "stochastic_hill_climbing"
         elif algo_key == "q_learning": algo_key = "q_learning_train_and_solve"
-        # "backtracking" and "and_or_search" (direct solve) keys are no longer selected this way
+ 
 
         solver_func = getattr(self.algo, algo_key, None)
         if not solver_func:
@@ -471,7 +470,7 @@ class PuzzleGUI:
         solve_goal_state = deepcopy(self.goal_state_list)
 
         if not self.algo.is_solvable(solve_initial_state) and \
-           algo_key not in ["genetic_algorithm", "q_learning_train_and_solve"]: # Removed "and_or_search"
+           algo_key not in ["genetic_algorithm", "q_learning_train_and_solve"]: 
             messagebox.showwarning("Unsolvable Puzzle", f"Initial state for '{algo_name_display}' is unsolvable.", parent=self.master)
             self.update_status(f"Warning: Initial state unsolvable for {algo_name_display}.", "warning")
 
@@ -712,20 +711,20 @@ class PuzzleGUI:
             self.update_result_label_color("info")
 
 
-# --- Main Execution ---
+ 
 if __name__ == "__main__":
     root = tk.Tk()
     try:
         required_attrs = ['bfs', 'dfs', 'ucs', 'a_star', 'is_solvable', 'find_blank',
                           'state_to_tuple', 'get_neighbors', 'manhattan_distance',
                           'and_or_search_visual', 'moves_delta', 'move_names',
-                          'q_learning_train_and_solve', # Giữ lại Q-Learning
-                          # Thêm các hàm CSP đã định nghĩa trong thuattoan.py
+                          'q_learning_train_and_solve', 
+ 
                           'backtracking_csp',
                           'forward_checking_csp',
                           'min_conflicts_csp',
                           'ac3_generate_board_csp',
-                          'are_tiles_adjacent_3_6_csp' # Hàm helper nếu nó là public và cần thiết
+                          'are_tiles_adjacent_3_6_csp'  
                          ]
         missing = [attr for attr in required_attrs if not hasattr(algo, attr)]
         if missing:

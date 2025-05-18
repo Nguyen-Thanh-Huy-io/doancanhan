@@ -7,11 +7,10 @@ import random
 import math
 import sys
 
-moves_delta = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # UP, DOWN, LEFT, RIGHT (cho ô trống)
+moves_delta = [(-1, 0), (1, 0), (0, -1), (0, 1)] 
 move_names = {(-1, 0): 'UP', (1, 0): 'DOWN', (0, -1): 'LEFT', (0, 1): 'RIGHT'}
 
 def find_blank(state_list_of_lists):
-    """Tìm vị trí ô trống (số 0) trong trạng thái (list of lists)."""
     if not isinstance(state_list_of_lists, list) or len(state_list_of_lists) != 3:
         return None
     for i in range(3):
@@ -28,11 +27,9 @@ def find_blank(state_list_of_lists):
     return None
 
 def is_valid(x, y):
-    """Kiểm tra tọa độ (x, y) có nằm trong lưới 3x3 hay không."""
-    return 0 <= x < 3 and 0 <= y < 3
+         return 0 <= x < 3 and 0 <= y < 3
 
 def state_to_tuple(state_list_of_lists):
-    """Chuyển đổi state (list of lists) thành tuple để hash."""
     try:
         if not isinstance(state_list_of_lists, list) or len(state_list_of_lists) != 3:
             return None
@@ -45,7 +42,6 @@ def state_to_tuple(state_list_of_lists):
         return None
 
 def tuple_to_list(state_tuple):
-    """Chuyển đổi state tuple thành list of lists để thay đổi."""
     try:
         if not isinstance(state_tuple, tuple) or len(state_tuple) != 3:
             return None
@@ -58,11 +54,6 @@ def tuple_to_list(state_tuple):
         return None
 
 def get_neighbors(state):
-    """
-    Tạo ra các trạng thái kế tiếp hợp lệ từ trạng thái hiện tại.
-    Trả về list of dictionaries, mỗi dict chứa: {'state': new_state_list, 'move': moved_tile_coord_tuple}
-    'move' là tọa độ của ô đã DI CHUYỂN vào ô trống.
-    """
     state_list = tuple_to_list(state) if isinstance(state, tuple) else deepcopy(state)
     if state_list is None: return []
 
@@ -70,23 +61,16 @@ def get_neighbors(state):
     if blank_pos is None: return [] 
     
     x, y = blank_pos 
-    neighbors = []
-    
-    # moves_delta là hướng di chuyển của ô số vào ô trống
+    neighbors = []     
     for dr, dc in moves_delta: 
-        tile_x, tile_y = x + dr, y + dc # Tọa độ của ô số sẽ di chuyển vào ô trống
+        tile_x, tile_y = x + dr, y + dc 
 
-        if is_valid(tile_x, tile_y): # Nếu ô số này nằm trong bảng
-            new_state = deepcopy(state_list)
-            # Di chuyển ô số (tile_x, tile_y) vào ô trống (x, y)
-            new_state[x][y], new_state[tile_x][tile_y] = new_state[tile_x][tile_y], new_state[x][y]
-            # 'move' lưu tọa độ của ô đã được di chuyển (ô số)
+        if is_valid(tile_x, tile_y): 
+            new_state = deepcopy(state_list)             
+            new_state[x][y], new_state[tile_x][tile_y] = new_state[tile_x][tile_y], new_state[x][y]             
             neighbors.append({'state': new_state, 'move': (tile_x, tile_y)}) 
             
-    return neighbors
-
-
-# --- Heuristic Function ---
+    return neighbors 
 def manhattan_distance(state, goal):
     state_list = tuple_to_list(state) if isinstance(state, tuple) else state
     goal_list = tuple_to_list(goal) if isinstance(goal, tuple) else goal
@@ -113,9 +97,8 @@ def manhattan_distance(state, goal):
                         return float('inf') 
     except (IndexError, TypeError, KeyError):
         return float('inf') 
-    return distance
+    return distance 
 
-# --- Uninformed Search Algorithms ---
 def bfs(initial, goal):
     initial_list = deepcopy(initial) if isinstance(initial, list) else tuple_to_list(initial)
     goal_list = deepcopy(goal) if isinstance(goal, list) else tuple_to_list(goal)
@@ -174,81 +157,45 @@ def ucs(initial, goal):
                 priority_queue.put((new_cost, new_state, path + [move_coord]))
     return None
 
-def dfs(initial, goal):
-    """
-    Thực hiện tìm kiếm theo chiều sâu (Depth-First Search) để giải 8-puzzle.
-
-    Args:
-        initial: Trạng thái ban đầu (có thể là list of lists hoặc tuple of tuples).
-        goal: Trạng thái đích (có thể là list of lists hoặc tuple of tuples).
-
-    Returns:
-        Một danh sách các tọa độ (tuple) của các ô đã được di chuyển để đạt đến đích,
-        hoặc None nếu không tìm thấy lời giải.
-    """
-    # 1. Chuẩn bị trạng thái và kiểm tra tính hợp lệ ban đầu
+def dfs(initial, goal):     
     initial_list = deepcopy(initial) if isinstance(initial, list) else tuple_to_list(initial)
     goal_list = deepcopy(goal) if isinstance(goal, list) else tuple_to_list(goal)
 
     if initial_list is None:
-        # print("DFS Error: Initial state is invalid or could not be converted to list.")
         return None
     if goal_list is None:
-        # print("DFS Error: Goal state is invalid or could not be converted to list.")
         return None
 
     initial_tuple = state_to_tuple(initial_list)
     goal_tuple = state_to_tuple(goal_list)
 
     if initial_tuple is None:
-        # print("DFS Error: Initial state could not be converted to tuple.")
         return None
     if goal_tuple is None:
-        # print("DFS Error: Goal state could not be converted to tuple.")
-        return None
-
-    # 2. Khởi tạo cấu trúc dữ liệu cho DFS
-    # Stack sẽ lưu trữ các tuple: (trạng thái_dạng_list, danh_sách_các_nước_đi_tới_trạng_thái_đó)
-    stack = [(initial_list, [])]
-    
-    # visited_tuples lưu các trạng thái (dạng tuple) đã được thêm vào stack để tránh chu trình
-    # và việc duyệt lại các trạng thái đã xử lý.
-    visited_tuples = {initial_tuple}
-
-    # 3. Bắt đầu vòng lặp DFS
+        return None     
+    stack = [(initial_list, [])] 
+    visited_tuples = {initial_tuple}     
     while stack:
-        current_state_list, path_to_current = stack.pop() # Lấy từ đỉnh stack (LIFO)
+        current_state_list, path_to_current = stack.pop()
         
         current_state_tuple = state_to_tuple(current_state_list)
-        if current_state_tuple is None: # Kiểm tra phòng trường hợp lỗi
-            # print("DFS Warning: Popped state converted to None tuple in loop.")
-            continue 
-
-        # 4. Kiểm tra xem có phải trạng thái đích không
+        if current_state_tuple is None:
+            continue         
         if current_state_tuple == goal_tuple:
-            return path_to_current # Tìm thấy lời giải, trả về đường đi
-
-        # 5. Lấy các trạng thái lân cận (các nước đi hợp lệ)
-        # get_neighbors trả về list của dict: [{'state': new_state_list, 'move': moved_tile_coord_tuple}, ...]
-        neighbors_data = get_neighbors(current_state_list)
-
-        # 6. Duyệt qua các láng giềng (theo thứ tự đảo ngược để stack xử lý "tự nhiên" hơn)
+            return path_to_current         
+        neighbors_data = get_neighbors(current_state_list)         
         for neighbor_info in reversed(neighbors_data):
-            new_neighbor_state_list = neighbor_info['state']    # Dạng list of lists
-            tile_coord_moved = neighbor_info['move']            # Tọa độ của ô đã di chuyển
+            new_neighbor_state_list = neighbor_info['state']
+            tile_coord_moved = neighbor_info['move']
 
             new_neighbor_state_tuple = state_to_tuple(new_neighbor_state_list)
-            if new_neighbor_state_tuple is None: # Kiểm tra phòng trường hợp lỗi
-                # print("DFS Warning: Neighbor state converted to None tuple.")
+            if new_neighbor_state_tuple is None:
                 continue
 
-            # Nếu láng giềng này chưa được "ghé thăm" (chưa từng được thêm vào stack)
             if new_neighbor_state_tuple not in visited_tuples:
-                visited_tuples.add(new_neighbor_state_tuple) # Đánh dấu đã ghé thăm
-                new_path = path_to_current + [tile_coord_moved] # Tạo đường đi mới
-                stack.append((new_neighbor_state_list, new_path)) # Thêm vào stack để khám phá sau
-
-    # 7. Nếu stack rỗng mà không tìm thấy đích -> không có lời giải
+                visited_tuples.add(new_neighbor_state_tuple)
+                new_path = path_to_current + [tile_coord_moved]
+                stack.append((new_neighbor_state_list, new_path))
     return None
 def depth_limited_search_recursive(current_state_list, goal_list, current_depth_limit, current_path_coords, visited_in_path_tuples):
     current_tuple = state_to_tuple(current_state_list)
@@ -290,9 +237,7 @@ def iddfs(initial, goal, max_depth=30):
         result = depth_limited_search_recursive(initial_list, goal_list, depth, [], visited_in_this_dls_path)
         if result is not None:
             return result
-    return None
-
-# --- Informed Search Algorithms ---
+    return None 
 def greedy_search(initial, goal):
     initial_list = deepcopy(initial) if isinstance(initial, list) else tuple_to_list(initial)
     goal_list = deepcopy(goal) if isinstance(goal, list) else tuple_to_list(goal)
@@ -431,9 +376,7 @@ def ida_star(initial, goal):
         )
         if next_threshold_candidate == -1: return path
         if next_threshold_candidate == float('inf'): return None
-        threshold = next_threshold_candidate
-
-# --- Local Search Algorithms ---
+        threshold = next_threshold_candidate 
 def hill_climbing(initial_state, goal, max_steps=1500):
     current_state_list = deepcopy(initial_state) if isinstance(initial_state, list) else tuple_to_list(initial_state)
     goal_list = deepcopy(goal) if isinstance(goal, list) else tuple_to_list(goal)
@@ -696,8 +639,6 @@ def genetic_algorithm(initial_state, goal_state):
             if state_to_tuple(temp_s_final_check) == goal_s_tuple:
                 return best_overall_chromosome_moves[:path_len_final]
     return None 
-
-# --- And-Or Search & Visualizer ---
 def and_or_search_recursive(state_list, goal_list, path_coords, visited_path_tuples):
     state_tuple = state_to_tuple(state_list)
     goal_tuple = state_to_tuple(goal_list)
@@ -757,11 +698,9 @@ def and_or_search_visual(initial_state_list, goal_state_list):
     for item_yielded in recursive_gen:
         if item_yielded[0] == 'GOAL_FOUND': solution_was_found_flag = True
         yield item_yielded
-    if not solution_was_found_flag: yield ('NO_SOLUTION_OVERALL', initial_copy, [])
+    if not solution_was_found_flag: yield ('NO_SOLUTION_OVERALL', initial_copy, []) 
 
-# Nhóm thuật toán số 5 
 def find_tile_general(board_list_of_lists, tile_value):
-    """Tìm vị trí của một ô (tile_value) cụ thể trong trạng thái (list of lists)."""
     if not isinstance(board_list_of_lists, list) or len(board_list_of_lists) != 3:
         return None
     for r_idx, row in enumerate(board_list_of_lists):
@@ -788,7 +727,7 @@ def get_valid_empty_tile_moves_csp(board_list_of_lists):
     if empty_pos is None:
         return []
     x, y = empty_pos
-    possible_deltas_for_empty = [] #
+    possible_deltas_for_empty = [] 
     
     if x > 0: possible_deltas_for_empty.append({'original_tile_moved_from': (x-1, y), 'new_empty_pos': (x-1, y), 'empty_delta': (-1,0)})
     if x < 2: possible_deltas_for_empty.append({'original_tile_moved_from': (x+1, y), 'new_empty_pos': (x+1, y), 'empty_delta': (1,0)})
@@ -820,29 +759,19 @@ def is_valid_board_values_csp(board_list_of_lists):
                     return False 
                 seen.add(val)
             count += 1
-    return count == 9 and len(seen) == 8 
-
-# --- CSP Algorithms (adapted from Pygame code) ---
-# (Constants from Pygame code, can be defined here or passed if needed)
+    return count == 9 and len(seen) == 8 # (Constants from Pygame code, can be defined here or passed if needed)
 CSP_BACKTRACKING_MAX_DEPTH = 35
 CSP_FORWARD_CHECKING_MAX_DEPTH = 35
 CSP_MIN_CONFLICTS_MAX_ITERATIONS = 200
 
-def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING_MAX_DEPTH):
-    """
-    Giải thuật Backtracking với ràng buộc 3&6 kề nhau (nếu ban đầu đã kề).
-    Trả về path (list of states) hoặc None.
-    """
-    # visited stores tuples of states
-    # path stores lists of lists
+def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING_MAX_DEPTH):     # path stores lists of lists
     
     memoized_3_6_check = {}
     def _is_3_6_adjacent_memoized(state_tuple):
         if state_tuple in memoized_3_6_check:
-            return memoized_3_6_check[state_tuple]
-        # Convert tuple back to list of lists for the check function
+            return memoized_3_6_check[state_tuple]         
         state_list_for_check = tuple_to_list(state_tuple)
-        if state_list_for_check is None: # Should not happen if input is fine
+        if state_list_for_check is None: 
             result = False
         else:
             result = are_tiles_adjacent_3_6_csp(state_list_for_check)
@@ -856,37 +785,22 @@ def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING
             return None
 
         empty_pos = find_blank(current_state_list)
-        if empty_pos is None: # Should not happen with valid boards
-            return None
-        
-        # Ràng buộc 3&6: kiểm tra trạng thái *hiện tại*
-        # Chuyển current_state_list sang tuple để dùng với memoized check
+        if empty_pos is None: 
+            return None        
         current_state_tuple_for_3_6_check = state_to_tuple(current_state_list)
-        if current_state_tuple_for_3_6_check is None: return None # Should not happen
+        if current_state_tuple_for_3_6_check is None: return None 
 
-        currently_3_6_adjacent = _is_3_6_adjacent_memoized(current_state_tuple_for_3_6_check)
-
-        # Sử dụng get_neighbors để lấy các trạng thái kế tiếp hợp lệ
-        # get_neighbors trả về list of dicts: {'state': new_state_list, 'move': moved_tile_coord_tuple}
-        
-        # Thay vì dùng Rangbuoc và Chinh_Sua_Ma_tran trực tiếp, dùng get_neighbors
-        # để có thể dễ dàng lấy các trạng thái kế tiếp.
-        
-        # Tuy nhiên, logic của Pygame Rangbuoc là về các nước đi của ô trống.
-        # get_neighbors của thuattoan.py hiện tại trả về nước đi của ô số.
-        # Để giữ logic "3&6", ta cần kiểm tra trạng thái sau nước đi.
-
-        potential_next_moves_info = get_neighbors(current_state_list) # state_list ở đây là list of lists
+        currently_3_6_adjacent = _is_3_6_adjacent_memoized(current_state_tuple_for_3_6_check)         
+        potential_next_moves_info = get_neighbors(current_state_list) 
 
         for move_info in potential_next_moves_info:
-            next_state_list = move_info['state'] # Đây là list of lists
+            next_state_list = move_info['state'] 
             next_state_tuple = state_to_tuple(next_state_list)
-            if next_state_tuple is None: continue # Invalid conversion
-
-            # Ràng buộc 3&6: nếu đang kề thì phải tiếp tục kề
+            if next_state_tuple is None: 
+                continue             
             if currently_3_6_adjacent:
                 if not _is_3_6_adjacent_memoized(next_state_tuple):
-                    continue # Bỏ qua nước đi này nếu phá vỡ ràng buộc
+                    continue 
 
             if next_state_tuple not in visited_set_of_tuples:
                 visited_set_of_tuples.add(next_state_tuple)
@@ -898,37 +812,27 @@ def backtracking_csp(initial_state_list, goal_state_list, depth=CSP_BACKTRACKING
                 )
                 if new_result_path:
                     return new_result_path
-                visited_set_of_tuples.remove(next_state_tuple) # Backtrack
+                visited_set_of_tuples.remove(next_state_tuple) 
         return None
 
     initial_state_tuple = state_to_tuple(initial_state_list)
-    if initial_state_tuple is None: return None # Invalid initial state
+    if initial_state_tuple is None: return None 
 
     return _backtrack_recursive(deepcopy(initial_state_list), [deepcopy(initial_state_list)], {initial_state_tuple}, depth)
 
 
 def forward_checking_csp(initial_state_list, goal_state_list, depth=CSP_FORWARD_CHECKING_MAX_DEPTH):
-    """
-    Giải thuật Forward Checking.
-    Trong code Pygame, Forward_Check_Pruning chỉ là kiểm tra visited.
-    Ràng buộc 3&6 không được áp dụng ở đây theo code gốc Pygame.
-    Trả về path (list of states) hoặc None.
-    """
     def _fc_recursive(current_state_list, current_path_list_of_states, visited_set_of_tuples, current_depth):
         if current_state_list == goal_state_list:
             return current_path_list_of_states
         if current_depth == 0:
-            return None
-        
-        # Tương tự Backtracking, dùng get_neighbors
+            return None         
         potential_next_moves_info = get_neighbors(current_state_list)
 
         for move_info in potential_next_moves_info:
             next_state_list = move_info['state']
             next_state_tuple = state_to_tuple(next_state_list)
-            if next_state_tuple is None: continue
-
-            # Pruning (Forward Checking trong code gốc chỉ là check visited)
+            if next_state_tuple is None: continue             
             if next_state_tuple not in visited_set_of_tuples:
                 visited_set_of_tuples.add(next_state_tuple)
                 new_result_path = _fc_recursive(
@@ -939,7 +843,7 @@ def forward_checking_csp(initial_state_list, goal_state_list, depth=CSP_FORWARD_
                 )
                 if new_result_path:
                     return new_result_path
-                visited_set_of_tuples.remove(next_state_tuple) # Backtrack
+                visited_set_of_tuples.remove(next_state_tuple) 
         return None
 
     initial_state_tuple = state_to_tuple(initial_state_list)
@@ -949,52 +853,35 @@ def forward_checking_csp(initial_state_list, goal_state_list, depth=CSP_FORWARD_
 
 
 def ac3_generate_board_csp():
-    """
-    Tạo một bảng 8-puzzle ngẫu nhiên, giải được và có ô 3 và 6 kề nhau.
-    Trả về một state (list of lists) hoặc None nếu không tạo được.
-    """
     max_attempts = 2000
     for _ in range(max_attempts):
-        nums = list(range(9)) # Bao gồm số 0
+        nums = list(range(9)) 
         random.shuffle(nums)
-        board = [nums[i*3:(i+1)*3] for i in range(3)]
-        
-        # is_valid_board_values_csp kiểm tra 0-8, mỗi số 1 lần
-        # is_solvable kiểm tra tính giải được so với goal chuẩn
-        # are_tiles_adjacent_3_6_csp kiểm tra 3&6
+        board = [nums[i*3:(i+1)*3] for i in range(3)]                 
         if is_valid_board_values_csp(board) and \
            is_solvable(board) and \
            are_tiles_adjacent_3_6_csp(board):
             return board
 
-    print(f"Warning: Không thể tạo bảng AC-3 với 3&6 kề nhau sau {max_attempts} lần thử.")
-    # Fallback có thể không thỏa mãn 3&6 kề nhau, tùy yêu cầu
-    # Tạo một fallback cố định hoặc một fallback ngẫu nhiên mà chỉ giải được
-    fallback_board = [[1, 2, 3], [4, 5, 6], [0, 7, 8]] # Ví dụ fallback
+    print(f"Warning: Không thể tạo bảng AC-3 với 3&6 kề nhau sau {max_attempts} lần thử.")     
+    fallback_board = [[1, 2, 3], [4, 5, 6], [0, 7, 8]] 
     if is_valid_board_values_csp(fallback_board) and \
        is_solvable(fallback_board) and \
-       are_tiles_adjacent_3_6_csp(fallback_board): # Kiểm tra lại fallback
+       are_tiles_adjacent_3_6_csp(fallback_board): 
         print("Dùng fallback board có 3&6 kề nhau.")
-        return fallback_board
-    
-    # Nếu fallback trên cũng không được, tạo 1 board ngẫu nhiên giải được
-    for _ in range(100): # Thử tạo fallback chỉ giải được
-        nums = list(range(9)); random.shuffle(nums)
-        b_fallback_solvable = [nums[i*3:(i+1)*3] for i in range(3)]
-        if is_valid_board_values_csp(b_fallback_solvable) and is_solvable(b_fallback_solvable):
-            print("Dùng fallback board ngẫu nhiên chỉ đảm bảo giải được (3&6 có thể không kề).")
-            return b_fallback_solvable
+        return fallback_board     
+        for _ in range(100): 
+            nums = list(range(9)); random.shuffle(nums)
+            b_fallback_solvable = [nums[i*3:(i+1)*3] for i in range(3)]
+            if is_valid_board_values_csp(b_fallback_solvable) and is_solvable(b_fallback_solvable):
+                print("Dùng fallback board ngẫu nhiên chỉ đảm bảo giải được (3&6 có thể không kề).")
+                return b_fallback_solvable
             
     print("CRITICAL: Không thể tạo fallback board hợp lệ.")
     return None
 
 
 def min_conflicts_csp(initial_state_list, goal_state_list, max_iterations=CSP_MIN_CONFLICTS_MAX_ITERATIONS):
-    """
-    Giải thuật Min-Conflicts.
-    Trả về path (list of states) hoặc None nếu không tìm thấy goal sau max_iterations.
-    Path ở đây là chuỗi các trạng thái đã duyệt qua.
-    """
     current_state = deepcopy(initial_state_list)
     path = [deepcopy(current_state)]
 
@@ -1003,48 +890,30 @@ def min_conflicts_csp(initial_state_list, goal_state_list, max_iterations=CSP_MI
 
     for _ in range(max_iterations):
         if current_state == goal_state_list:
-            return path
-
-        # Tìm các trạng thái kế tiếp và heuristic của chúng
-        # get_neighbors trả về list of dicts: {'state': new_state_list, 'move': moved_tile_coord_tuple}
+            return path 
         neighbor_options_info = []
         potential_next_states_info = get_neighbors(current_state)
 
-        if not potential_next_states_info: # Không có nước đi hợp lệ (kẹt)
-            # print("Min-Conflicts: Bị kẹt, không có nước đi hợp lệ.")
-            return path # Trả về đường đi đã có tới giờ
+        if not potential_next_states_info:             return path 
 
         for move_info in potential_next_states_info:
-            next_s_list = move_info['state']
-            # Heuristic ở đây là manhattan distance
+            next_s_list = move_info['state']             
             h_score = manhattan_distance(next_s_list, goal_state_list)
-            if h_score == float('inf'): # Trạng thái không hợp lệ (không nên xảy ra nếu get_neighbors đúng)
+            if h_score == float('inf'): 
                 continue
             neighbor_options_info.append({'state': next_s_list, 'score': h_score})
         
-        if not neighbor_options_info: # Không có lựa chọn nào sau khi lọc
-            # print("Min-Conflicts: Không có lựa chọn trạng thái kế tiếp hợp lệ.")
-            return path 
-
-        # Sắp xếp theo score (heuristic)
+        if not neighbor_options_info:             return path         
         neighbor_options_info.sort(key=lambda x: x['score'])
         
-        min_conflict_score = neighbor_options_info[0]['score']
-        
-        # Chọn ngẫu nhiên trong số các trạng thái tốt nhất (có score nhỏ nhất)
+        min_conflict_score = neighbor_options_info[0]['score']         
         best_options_states = [info['state'] for info in neighbor_options_info if info['score'] == min_conflict_score]
         
-        if not best_options_states: # Trường hợp hiếm
-            # print("Min-Conflicts: Không có best options.")
-            return path
+        if not best_options_states:             return path
 
         current_state = random.choice(best_options_states)
-        path.append(deepcopy(current_state))
-
-    # print(f"Min-Conflicts: Hết {max_iterations} vòng lặp.")
-    return path # Trả về path đã đi dù có tới đích hay không
-
-# --- Q-Learning ---
+        path.append(deepcopy(current_state))     
+        return path 
 Q_TABLE_GLOBAL = {} 
 TRAINING_IN_PROGRESS = False
 LAST_TRAINED_INITIAL_STATE_TUPLE = None 
@@ -1164,8 +1033,6 @@ def q_learning_train_and_solve(initial_state_raw, goal_state_raw,
             current_solve_s_list[moved_tile_r][moved_tile_c], current_solve_s_list[br_s][bc_s]
     print(f"Q-Learning: Failed to reach goal within {max_solve_steps} steps during solving.")
     return None 
-
-# --- Puzzle Solvability Check ---
 def is_solvable(state):
     state_list = tuple_to_list(state) if isinstance(state, tuple) else state
     if state_list is None: return False 
@@ -1182,12 +1049,10 @@ def is_solvable(state):
     for i in range(len(flat_state)):
         for j in range(i + 1, len(flat_state)):
             if flat_state[i] > flat_state[j]: inversions += 1
-    return inversions % 2 == 0
-
-# --- Conformant Planning (Conceptual Demo) ---
-GOAL_STATE_TUPLE_CONFORMANT = state_to_tuple([[1, 2, 3], [4, 5, 6], [7, 8, 0]]) 
+    return inversions % 2 == 0 
+    GOAL_STATE_TUPLE_CONFORMANT = state_to_tuple([[1, 2, 3], [4, 5, 6], [7, 8, 0]]) 
 def physical_result_8puzzle(state_tuple, move_delta_action):
-    state_list = tuple_to_list(state_tuple);
+    state_list = tuple_to_list(state_tuple)
     if state_list is None: return None
     blank_pos = find_blank(state_list)
     if blank_pos is None: return None 
@@ -1245,3 +1110,4 @@ def search_no_observation(initial_state_list_for_conformant, goal_state_list_for
     else:
         print(f">>> No Conformant Plan Found (for DEMO belief).")
     return None
+
