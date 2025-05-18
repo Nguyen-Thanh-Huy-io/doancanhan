@@ -1,6 +1,7 @@
 1. Mục tiêu
 
 Trong quá trình học tập môn Trí tuệ nhân tạo (AI) ở trên trường, em đã được chỉ dạy rất nhiều các nhóm thuật toán khác nhau. Vì vậy để mô phỏng những kiến thức lý thuyết cũng như có những cái nhìn sinh động, chân thật về những nhóm thuật toán thì em đã có thực hiện một đồ án cá nhân nho nhỏ đó là mô phỏng trò chơi 8 puzzle, nơi mà em đã thực hiện giải trò chơi thông qua các nhóm thuật toán khác nhau nhằm đánh giá được hiệu suất cũng như cách vận hành của từng loại
+
 2. Nội dung
 
 Một bài toán tìm kiếm thông thường sẽ đƯợc định nghĩa bởi các thành phần sau xét theo lĩnh vực Trí tuệ nhân tạo và nếu trên khía cách là giải bài toán 8-puzzle thì sau đây là những điều chúng ta cần lưu ý.
@@ -13,6 +14,7 @@ Một bài toán tìm kiếm thông thường sẽ đƯợc định nghĩa bởi
 
 2.1. Các thuật toán tim kiếm có thông tin ( Uniformed Search)
   Nhóm thuật toán này sẽ bao gồm các nhóm thuật toán kinh điển như: 
+
 2.1.1. Breadth-First Search (BFS)  - tìm kiếm theo chiều rộng
 - Mô tả: Thuật toán duyệt hoặc mở rộng từ những nút nông trước (những nút kế bên nút được xét), sử dụng hàng đợi queue để xử lý các nút chờ được xét.
 - Ứng dụng: Trực quan hóa quá trình BFS giải 8-puzzle có thể được thực hiện thông qua giao diện chính (`giaodien.py`).
@@ -36,6 +38,7 @@ Một bài toán tìm kiếm thông thường sẽ đƯợc định nghĩa bởi
 Trực quan hóa và So sánh hiệu suất (Đối với nhóm thuật toán không có thông tin):
 
 - Với initial state (trạng thái ban đầu) mà em đã cho là [(1,2,3),(4,0,5),(6,7,8)] thì đây là hiệu suất của từng thuật toán trong nhóm trên ( ở đây là thời gian tìm được kết quả)
+
 ![Mô tả ảnh](assets/images2/bfs.png)
 ![Mô tả ảnh](assets/images2/ucs.png)
 ![Mô tả ảnh](assets/images2/ids.png)
@@ -127,7 +130,8 @@ Các thuật toán này duyệt không gian trạng thái bằng cách chỉ gi�
 ![Mô tả ảnh](assets/images2/HC.png)
 ![Mô tả ảnh](assets/images2/steepestHC.png)
 ![Mô tả ảnh](assets/images2/stochasticHC.png)
-- Vì trạng thái ban đầu rất dễ ( chỉ cần 2 bước) nên tìm thấy lời giải rất nhanh
+
+    Vì trạng thái ban đầu rất dễ ( chỉ cần 2 bước) nên tìm thấy lời giải rất nhanh
 
 - Ứng dụng: Quan sát trên giao diện chính (`giaodien.py`).
 
@@ -145,7 +149,7 @@ Các thuật toán này duyệt không gian trạng thái bằng cách chỉ gi�
 ![Mô tả ảnh](assets/image2/genetic.png)
 
 2.3.4. Beam Search - Tìm kiếm chùm tia:
--Mô tả: Giữ lại `k` trạng thái tốt nhất ở mỗi bước mở rộng (thay vì chỉ 1 như Hill Climbing).
+-Mô tả: Giữ lại `k` trạng thái tốt nhất (chính là Beam-width trong code) ở mỗi bước mở rộng (thay vì chỉ 1 như Hill Climbing).
 -Ứng dụng: Quan sát trên giao diện chính (`giaodien.py`).
 ![Demo](assets/images/beam-search.gif)
 ![Mô tả ảnh](assets/images2/Beam-search.png)
