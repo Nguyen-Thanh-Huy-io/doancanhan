@@ -146,7 +146,7 @@ Các thuật toán này duyệt không gian trạng thái bằng cách chỉ gi�
 -Mô tả: Mô phỏng quá trình tiến hóa tự nhiên. Duy trì một "quần thể" (population) các trạng thái (nhiễm sắc thể). Tạo thế hệ mới bằng cách lai ghép (crossover) và đột biến (mutation) các cá thể tốt nhất.
 - Ứng dụng: Quan sát trên giao diện chính (`giaodien.py`).
 ![Demo](assets/images/genetic.gif)
-![Mô tả ảnh](assets/image2/genetic.png)
+![Mô tả ảnh](assets/images2/genetic.png)
 
 2.3.4. Beam Search - Tìm kiếm chùm tia:
 -Mô tả: Giữ lại `k` trạng thái tốt nhất (chính là Beam-width trong code) ở mỗi bước mở rộng (thay vì chỉ 1 như Hill Climbing).
